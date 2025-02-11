@@ -171,12 +171,24 @@ class XAPX00(object):
         self.ExpansionChannels = string.ascii_uppercase[string.ascii_uppercase.find('O'):]
         self.ProcessingChannels = string.ascii_uppercase[:string.ascii_uppercase.find('H')]
 
+    def get_serial_port(self):
+        serialconn = serial.serial_for_url(self.comPort, do_not_open=True)
+        serialconn.baudrate = self.baudRate
+        serialconn.stopbits = self.stopBits
+        serialconn.bytesize = self.byteLength
+        serialconn.parity = self.parity
+        serialconn.rtscts = self.rtscts
+        serialconn.timeout = self.timeout
+        serialconn.write_timeout = self.timeout
+        serialconn.open()
+
+        return serialcon
+
     def connect(self):
         """Open serial port and check connection."""
         _LOGGER.info("Connecting to XAPX00 at " + str(self.baudRate) +
                      " baud...")
-        self.serial = serial.Serial(self.comPort, self.baudRate,
-                                    timeout=self.timeout, rtscts=self.rtscts)
+        self.serial = self.get_serial_port()
         # Ensure connectivity by requesting the UID of the first unit
         units = []
         self.serial.reset_input_buffer()
